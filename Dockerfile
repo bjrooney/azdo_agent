@@ -11,6 +11,7 @@ ENV VENDIR_VERSION=0.33.1
 ENV KLUCTL_VERSION=2.21.2
 ENV TERRAFORM_VERSION=1.6.1
 ENV KUBECTL_VERSION=1.26.6
+ENV PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
 # https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#sort-multi-line-arguments
