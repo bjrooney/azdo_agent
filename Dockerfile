@@ -1,5 +1,5 @@
 
-FROM  ubuntu:22.04
+FROM  ubuntu:lunar-20231004
 LABEL maintainer="bjr"
 LABEL version="0.1.12"
 LABEL description="AzDO Agent as Docker Container"
@@ -28,8 +28,6 @@ RUN apt-get update \
         gnupg \
         iputils-ping \
         jq \
-        libcurl4 \
-        libicu70 \
         # libicu60=18.xx // libicu66=20.04 // libicu67=21.xx // libicu70=22.??
         libssl1.0 \
         libunwind8 \
