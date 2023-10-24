@@ -28,11 +28,8 @@ RUN apt-get update \
         gnupg \
         iputils-ping \
         jq \
-        # libicu60=18.xx // libicu66=20.04 // libicu67=21.xx // libicu70=22.??
-        libssl1.0 \
-        libunwind8 \
+        # libicu60=18.xx // libicu66=20.04 // libicu67=21.xx // libicu70=22.?
         lsb-release \
-        netcat \
         openssh-client \
         software-properties-common \
         unzip \
@@ -40,7 +37,6 @@ RUN apt-get update \
         file \
         python3-venv \
         make \
-        openjdk-17-jre \
         wget \
     && add-apt-repository ppa:rmescandon/yq -y \
     && apt-get update \
