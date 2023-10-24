@@ -37,11 +37,6 @@ RUN apt-get update \
         file \
         python3-venv \
         make \
-        wget \
-    && add-apt-repository ppa:rmescandon/yq -y \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        yq \
     && rm -Rf /var/lib/apt/lists/* \
     && rm -Rf /usr/share/doc \
     && rm -Rf /usr/share/man \
