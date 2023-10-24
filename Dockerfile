@@ -44,6 +44,28 @@ RUN apt-get update \
     && apt-get clean 
 
 SHELL ["/bin/bash", "-xeo", "pipefail", "-c"]
+# Install kubectl
+RUN cd "$(mktemp -d)" \
+    && curl -LO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/kubectl
+
+# Install terraform
+RUN cd "$(mktemp -d)" \
+    && curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+    && mv terraform /usr/local/bin/terraform
+
+# Install vendir
+RUN cd "$(mktemp -d)" \
+    && curl -s -L https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64 > /usr/local/bin/vendir \
+    && chmod +x /usr/local/bin/vendir \
+    && vendir version
+
+# Install kluctl
+RUN cd "$(mktemp -d)" \
+    && export kluctl_VERSION=${KLUCTL_VERSION} \
+	&& curl -s https://kluctl.io/install.sh | bash
 
 RUN cd "$(mktemp -d)" \
     && curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
@@ -98,28 +120,6 @@ RUN wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/pac
     && apt-get update \
     && apt-get install -y powershell
 
-# Install kubectl
-RUN cd "$(mktemp -d)" \
-    && curl -LO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
-    && chmod +x kubectl \
-    && mv kubectl /usr/local/bin/kubectl
-
-# Install terraform
-RUN cd "$(mktemp -d)" \
-    && curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
-    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && mv terraform /usr/local/bin/terraform
-
-# Install vendir
-RUN cd "$(mktemp -d)" \
-    && curl -s -L https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64 > /usr/local/bin/vendir \
-    && chmod +x /usr/local/bin/vendir \
-    && vendir version
-
-# Install kluctl
-RUN cd "$(mktemp -d)" \
-    && export kluctl_VERSION=${KLUCTL_VERSION} \
-	&& curl -s https://kluctl.io/install.sh | bash
 
 # Set the Working Directory
 WORKDIR /azdo
