@@ -45,25 +45,32 @@ RUN apt-get update \
 
 SHELL ["/bin/bash", "-xeo", "pipefail", "-c"]
 
-# Install AZCLI 
+RUN cd "$(mktemp -d)" \
+    && curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
+    && chmod +x get_helm.sh \
+    && ./get_helm.sh 
 
-RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
-    && AZ_REPO=$(lsb_release -cs) \
-    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends azure-cli \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
-# Install helm
-RUN curl https://baltocdn.com/helm/signing.asc |  apt-key add - \
-    && echo "deb https://baltocdn.com/helm/stable/debian/ all main" |  tee /etc/apt/sources.list.d/helm-stable-debian.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends helm \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN cd "$(mktemp -d)" \
+    && curl -LO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz \
+    && tar zxvf krew-linux_amd64.tar.gz \
+    &&  ./krew-linux_amd64 install krew \
+    && kubectl krew update \
+    && kubectl krew install kc ns ctx
+    
+RUN cd "$(mktemp -d)" \
+    && curl -LO https://github.com/derailed/k9s/releases/download/v0.27.4/k9s_Linux_amd64.tar.gz \
+    && tar zxvf k9s_Linux_amd64.tar.gz \
+    && mv k9s /usr/bin
+    
+RUN cd "$(mktemp -d)" \
+    && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install
 
 # Install helmfile
+
+
 RUN curl -Ls "https://github.com/helmfile/helmfile/releases/download/v0.155.0/helmfile_0.155.0_linux_amd64.tar.gz" -o "helmfile.tar.gz" \
     && mkdir helmfile \
     && tar -xf helmfile.tar.gz -C helmfile \
@@ -75,12 +82,6 @@ RUN curl -s https://apt.boltops.com/boltops-key.public | apt-key add - \
     && echo "deb https://apt.boltops.com stable main" > /etc/apt/sources.list.d/boltops.list \
     && apt-get update \
     && apt-get install -y terraspace \ 
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install graphviz
-RUN apt-get update \
-    && apt-get install -y graphviz \ 
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
