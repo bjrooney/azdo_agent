@@ -77,9 +77,9 @@ RUN cd "$(mktemp -d)" \
 RUN cd "$(mktemp -d)" \
     && curl -LO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz \
     && tar zxvf krew-linux_amd64.tar.gz \
-    &&  ./krew-linux_amd64 install krew \
-    && kubectl krew update \
-    && kubectl krew install kc ns ctx
+    &&  ./krew-linux_amd64 install krew 
+    # && kubectl krew update \
+    # && kubectl krew install kc ns ctx
     
 RUN cd "$(mktemp -d)" \
     && curl -LO https://github.com/derailed/k9s/releases/download/v0.27.4/k9s_Linux_amd64.tar.gz \
