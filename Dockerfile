@@ -11,6 +11,9 @@ ENV VENDIR_VERSION=0.33.1
 ENV KLUCTL_VERSION=2.21.2
 ENV TERRAFORM_VERSION=1.6.1
 ENV KUBECTL_VERSION=1.26.6
+ENV K8S_KUBELOGIN_VERSION=0.0.31
+ENV K8S_HELMFILE_VERSION=0.156.0
+ENV K8S_HELM_VERSION=3.12.2
 ENV PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
@@ -38,6 +41,7 @@ RUN apt-get update \
         file \
         python3-venv \
         make \
+        unzip \
     && rm -Rf /var/lib/apt/lists/* \
     && rm -Rf /usr/share/doc \
     && rm -Rf /usr/share/man \
@@ -45,22 +49,59 @@ RUN apt-get update \
     && apt-get clean 
 
 SHELL ["/bin/bash", "-xeo", "pipefail", "-c"]
+
+# Install AZCLI 
+
+RUN cd "$(mktemp -d)" \
+	&& curl -L https://aka.ms/InstallAzureCli | bash
+
+# Install helm
+RUN cd "$(mktemp -d)" \
+	&& wget https://get.helm.sh/helm-v${K8S_HELM_VERSION}-linux-amd64.tar.gz \
+	&& tar zxvf helm-v${K8S_HELM_VERSION}-linux-amd64.tar.gz \
+	&& mv linux-amd64/helm /usr/bin \
+	&& helm plugin install https://github.com/databus23/helm-diff
+
+# Install helmfile
+RUN cd "$(mktemp -d)" \
+	&& 	wget https://github.com/helmfile/helmfile/releases/download/v${K8S_HELMFILE_VERSION}/helmfile_${K8S_HELMFILE_VERSION}_linux_amd64.tar.gz \
+	&& 	tar zxvf helmfile_${K8S_HELMFILE_VERSION}_linux_amd64.tar.gz \
+	&&  mv helmfile /usr/bin/helmfile
+
 # Install kubectl
 RUN cd "$(mktemp -d)" \
     && curl -LO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
     && chmod +x kubectl \
-    && mv kubectl /usr/local/bin/kubectl
+    && mv kubectl /usr/bin/kubectl
+
+# Install kubelogin
+RUN cd "$(mktemp -d)" \
+    && wget https://github.com/Azure/kubelogin/releases/download/v${K8S_KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip \
+	&& unzip kubelogin-linux-amd64.zip \
+	&& mv bin/linux_amd64/kubelogin /usr/bin/kubelogin
+
+# Install powershell
+RUN cd "$(mktemp -d)" \
+    && curl -L -o /tmp/powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v7.3.8/powershell-7.3.8-linux-x64.tar.gz \
+    && mkdir -p /opt/microsoft/powershell/7 \
+    && tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 \
+    && chmod +x /opt/microsoft/powershell/7/pwsh \
+    && ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
 
 # Install terraform
 RUN cd "$(mktemp -d)" \
     && curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
     && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && mv terraform /usr/local/bin/terraform
+    && mv terraform /usr/bin/terraform
+
+# Install terraspace
+RUN wget https://apt.boltops.com/packages/terraspace/terraspace-latest.deb \
+    && dpkg -i terraspace-latest.deb
 
 # Install vendir
 RUN cd "$(mktemp -d)" \
     && curl -s -L https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64 > /usr/local/bin/vendir \
-    && chmod +x /usr/local/bin/vendir \
+    && chmod +x /USER/bin/vendir \
     && vendir version
 
 # Install kluctl
@@ -72,7 +113,6 @@ RUN cd "$(mktemp -d)" \
     && curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
     && chmod +x get_helm.sh \
     && ./get_helm.sh 
-
 
 RUN cd "$(mktemp -d)" \
     && curl -LO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz \
@@ -90,37 +130,6 @@ RUN cd "$(mktemp -d)" \
     && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
     && unzip awscliv2.zip \
     && ./aws/install
-
-# Install helmfile
-
-
-RUN curl -Ls "https://github.com/helmfile/helmfile/releases/download/v0.155.0/helmfile_0.155.0_linux_amd64.tar.gz" -o "helmfile.tar.gz" \
-    && mkdir helmfile \
-    && tar -xf helmfile.tar.gz -C helmfile \
-    && mv helmfile/helmfile /usr/bin \
-    && rm -r helmfile
-
-# Install terraspace
-RUN curl -s https://apt.boltops.com/boltops-key.public | apt-key add - \
-    && echo "deb https://apt.boltops.com stable main" > /etc/apt/sources.list.d/boltops.list \
-    && apt-get update \
-    && apt-get install -y terraspace \ 
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install kubelogin
-RUN curl -Ls "https://github.com/Azure/kubelogin/releases/download/v0.0.28/kubelogin-linux-amd64.zip" -o "kubelogin.zip" \
-    && unzip kubelogin.zip \
-    && mv bin/linux_amd64/kubelogin /usr/bin \
-    && rm kubelogin.zip
-
-# Install powershell
-RUN wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb" \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y powershell
-
 
 # Set the Working Directory
 WORKDIR /azdo
