@@ -53,7 +53,7 @@ SHELL ["/bin/bash", "-xeo", "pipefail", "-c"]
 # Install AZCLI 
 
 RUN cd "$(mktemp -d)" \
-	&& curl -L https://aka.ms/InstallAzureCli | bash
+	&& curl -L https://aka.ms/install-azd.sh | bash
 
 # Install helm
 RUN cd "$(mktemp -d)" \
