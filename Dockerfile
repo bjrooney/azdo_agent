@@ -14,7 +14,10 @@ ENV KUBECTL_VERSION=1.26.6
 ENV K8S_KUBELOGIN_VERSION=0.0.31
 ENV K8S_HELMFILE_VERSION=0.156.0
 ENV K8S_HELM_VERSION=3.12.2
-ENV PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+ENV AZP_AGENTPACKAGE_URL=https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz
+ENV AZP_URL=https://dev.azure.com/FeistyEric/Chickens
+ENV AZP_TOKEN=6bbrgnpwwcljni3fpivke36f6qlr7zksgsxoy7g7i6at7od6jbsq
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
 # https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#sort-multi-line-arguments
@@ -110,11 +113,6 @@ RUN cd "$(mktemp -d)" \
 	&& curl -s https://kluctl.io/install.sh | bash
 
 RUN cd "$(mktemp -d)" \
-    && curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
-    && chmod +x get_helm.sh \
-    && ./get_helm.sh 
-
-RUN cd "$(mktemp -d)" \
     && curl -LO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz \
     && tar zxvf krew-linux_amd64.tar.gz \
     &&  ./krew-linux_amd64 install krew 
@@ -134,7 +132,7 @@ RUN cd "$(mktemp -d)" \
 # Set the Working Directory
 WORKDIR /azdo
 COPY azdo_agent.sh ./
-
+RUN wget https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz \
 # Add the AzDO Agent User 
 RUN groupadd --system --gid 1001 azdoagent \
     &&  useradd --system --gid 1001 --comment "Azure DevOps Agent User" --uid 1001 --home-dir /azdo  --shell /usr/sbin/nologin azdoagent \
