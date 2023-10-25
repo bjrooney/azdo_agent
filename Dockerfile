@@ -101,7 +101,7 @@ RUN wget https://apt.boltops.com/packages/terraspace/terraspace-latest.deb \
 
 # Install vendir
 RUN cd "$(mktemp -d)" \
-    && curl -s -L https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64 > /usr/local/bin/vendir \
+    && curl -s -L https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64 > /usr/bin/vendir \
     && chmod +x /user/bin/vendir 
 
 # Install kluctl
