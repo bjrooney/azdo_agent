@@ -7,7 +7,7 @@ LABEL imagestatus="prod"
 
 # To make it easier for build and release pipelines to run apt-get,
 ENV DEBIAN_FRONTEND=noninteractive
-ENV VENDIR_VERSION=0.33.1
+ENV VENDIR_VERSION=0.35.0
 ENV KLUCTL_VERSION=2.21.2
 ENV TERRAFORM_VERSION=1.6.1
 ENV KUBECTL_VERSION=1.26.6
