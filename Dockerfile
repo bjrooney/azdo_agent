@@ -28,6 +28,7 @@ RUN apt-get update \
         apt-utils \
         ca-certificates \
         curl \
+        wget \
         git \
         gnupg \
         iputils-ping \
