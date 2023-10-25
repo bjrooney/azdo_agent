@@ -1,5 +1,5 @@
 
-FROM  ubuntu:lunar-20231004
+FROM  ubuntu:23.10
 LABEL maintainer="bjr"
 LABEL version="0.1.12"
 LABEL description="AzDO Agent as Docker Container"
