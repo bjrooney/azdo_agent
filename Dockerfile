@@ -1,5 +1,5 @@
 
-FROM  ubuntu:lunar-20231004
+FROM  ubuntu:22.04
 LABEL maintainer="bjr"
 LABEL version="0.1.12"
 LABEL description="AzDO Agent as Docker Container"
@@ -19,10 +19,7 @@ ENV TERRASPACE_VERSION=latest
 ENV AZCLI_VERSION=1.4.0
 ENV K9S_VERSION=0.27.4
 
-ENV AZP_AGENTPACKAGE_URL=https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz
-ENV AZP_URL=https://dev.azure.com/FeistyEric/
-ENV AZP_TOKEN=6bbrgnpwwcljni3fpivke36f6qlr7zksgsxoy7g7i6at7od6jbsq
-ENV AZP_POOL="self hosted"
+
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
 # https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#sort-multi-line-arguments
@@ -41,7 +38,6 @@ RUN apt-get update \
     gnupg \
     iputils-ping \
     jq \
-    # libicu60=18.xx // libicu66=20.04 // libicu67=21.xx // libicu70=22.?
     lsb-release \
     openssh-client \
     software-properties-common \
@@ -50,21 +46,26 @@ RUN apt-get update \
     file \
     python3-venv \
     make \
-    unzip \
-    && rm -Rf /var/lib/apt/lists/* \
-    && rm -Rf /usr/share/doc \
-    && rm -Rf /usr/share/man \
-    && rm -Rf /var/cache/apt/* \
-    && apt-get clean 
+    unzip
+ 
 
 SHELL ["/bin/bash", "-xeo", "pipefail", "-c"]
 
 # Install AZCLI 
 
 RUN cd "$(mktemp -d)" \
-    && wget https://aka.ms/install-azd.sh \
-    && chmod +x install-azd.sh \
-    && ./install-azd.sh --version ${AZCLI_VERSION}
+    && mkdir -p /etc/apt/keyrings \
+    && curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/keyrings/microsoft.gpg > /dev/null \
+    && chmod go+r /etc/apt/keyrings/microsoft.gpg \
+    && AZ_DIST=$(lsb_release -cs) \
+    && echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" | tee /etc/apt/sources.list.d/azure-cli.list \
+    && apt update \
+    && apt install azure-cli -y \
+    && rm -Rf /var/lib/apt/lists/* \
+    && rm -Rf /usr/share/doc \
+    && rm -Rf /usr/share/man \
+    && rm -Rf /var/cache/apt/* \
+    && apt-get clean
 
 # Install helm
 RUN cd "$(mktemp -d)" \
@@ -118,10 +119,10 @@ RUN cd "$(mktemp -d)" \
     && curl -s https://kluctl.io/install.sh | bash
 
 # Install krew
-RUN cd "$(mktemp -d)" \
-    && curl -LO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz \
-    && tar zxvf krew-linux_amd64.tar.gz \
-    &&  ./krew-linux_amd64 install krew 
+# RUN cd "$(mktemp -d)" \
+#     && curl -LO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz \
+#     && tar zxvf krew-linux_amd64.tar.gz \
+#     &&  ./krew-linux_amd64 install krew 
 # && kubectl krew update \
 # && kubectl krew install kc ns ctx
 
@@ -138,17 +139,35 @@ RUN cd "$(mktemp -d)" \
 
 # Set the Working Directory
 WORKDIR /azdo
-COPY azdo_agent.sh ./
+
+ENV AZP_AGENTPACKAGE_URL=https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz
+ENV AZP_URL=https://dev.azure.com/FeistyEric
+ENV AZP_TOKEN=4zfk4dzlgqocevtagmosv6dkniujaatnjzlse3dq7765f6o4427a
+ENV AZP_POOL="sh"
 
 # Add the AzDO Agent User 
 RUN groupadd    --system --gid 1001 azdoagent \
     &&  useradd --system --gid 1001 --comment "Azure DevOps Agent User" --uid 1001 --home-dir /azdo  --shell /usr/sbin/nologin azdoagent \
     &&  chown -R azdoagent:azdoagent /azdo \
-    &&  chmod 755 /azdo \
-    &&  chmod +x azdo_agent.sh
+    &&  chmod 755 /azdo 
 
 # Change to AzDO Agent User
 USER azdoagent
 
+RUN cd "$(mktemp -d)" \
+    && wget ${AZP_AGENTPACKAGE_URL} \
+    && tar zxvf vsts-agent-linux-x64-3.227.2.tar.gz -C /azdo \
+    && cd /azdo \
+    && ./config.sh --unattended \
+        --agent "${AZP_AGENT_NAME:-$(hostname)}" \
+        --url "${AZP_URL}" \
+        --auth PAT \
+        --token "${AZP_TOKEN}" \
+        --pool "${AZP_POOL}" \
+        --work "${AZP_WORK:-_work}" \
+        --replace \
+        --acceptTeeEula & wait $!
+
 # Start the AzDO Agent Script
-CMD ["./azdo_agent.sh"]
+RUN chmod +x run-docker.sh
+CMD ["./run-docker.sh"]
