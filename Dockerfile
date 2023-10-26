@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 FROM  ubuntu:22.04
+=======
+FROM  ubuntu:23.10
+>>>>>>> d83f926a108842cb9bbaa8077e1ef339f9adef31
 LABEL maintainer="bjr"
 LABEL version="0.1.12"
 LABEL description="AzDO Agent as Docker Container"
