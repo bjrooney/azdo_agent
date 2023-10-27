@@ -21,7 +21,6 @@ ENV K9S_VERSION=0.27.4
 ENV YQ_VERSION=yq_linux_amd64
 ENV YQ_BINARY=4.35.2
 
-https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
 # https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#sort-multi-line-arguments
