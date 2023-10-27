@@ -1,7 +1,7 @@
 
 FROM  ubuntu:22.04
 LABEL maintainer="Hyperion"
-LABEL version="0.1.12"
+LABEL version="0.1.1"
 LABEL description="AzDO Agent as Docker Container"
 LABEL imagestatus="prod"
 
@@ -28,7 +28,7 @@ ENV YQ_BINARY=yq_linux_amd64
 
 # Create User and Base Install on Container
 
-RUN apt update \
+RUN apt update && apt upgrade -y\
     && apt install -y --no-install-recommends \
     apt-transport-https \
     apt-utils \
@@ -44,9 +44,7 @@ RUN apt update \
     vim \
     file \
     python3-venv \
-    make \
-    unzip
- 
+    make 
 
 SHELL ["/bin/bash", "-xeo", "pipefail", "-c"]
 
@@ -59,12 +57,7 @@ RUN cd "$(mktemp -d)" \
     && AZ_DIST=$(lsb_release -cs) \
     && echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" | tee /etc/apt/sources.list.d/azure-cli.list \
     && apt update \
-    && apt install azure-cli -y \
-    && rm -Rf /var/lib/apt/lists/* \
-    && rm -Rf /usr/share/doc \
-    && rm -Rf /usr/share/man \
-    && rm -Rf /var/cache/apt/* \
-    && apt-get clean
+    && apt install azure-cli -y 
 
 # Install yq
 RUN cd "$(mktemp -d)" \
@@ -87,7 +80,9 @@ RUN cd "$(mktemp -d)" \
 
 # Install kubelogin
 RUN cd "$(mktemp -d)" \
-    && wget https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip  -O - | unzip && mv bin/linux_amd64/kubelogin /usr/bin/kubelogin
+    && wget https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip \
+    && unzip kubelogin-linux-amd64.zip \
+    && mv bin/linux_amd64/kubelogin /usr/bin/kubelogin
 
 # Install powershell
 RUN cd "$(mktemp -d)"
@@ -137,24 +132,31 @@ RUN cd "$(mktemp -d)" \
 WORKDIR /azdo
 
 ENV AZP_AGENTPACKAGE_URL=https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz
-ENV AZP_URL=https://https://sita-pse.visualstudio.com/
+ENV AZP_URL=https://sita-pse.visualstudio.com/
 ENV AZP_TOKEN=4hdrmqzfeb4pj2cnlzjsx3whaeahbvm6kqjcdzo6dszc2apkrs6q
 ENV AZP_POOL="Hyperion-Dev"
 
 # Add the AzDO Agent User 
 RUN groupadd    --system --gid 1001 azdoagent \
     &&  useradd --system --gid 1001 --comment "Azure DevOps Agent User" --uid 1001 --home-dir /azdo  --shell /usr/sbin/nologin azdoagent \
-    &&  chown -R azdoagent:azdoagent /azdo \
-    &&  chmod 755 /azdo 
+    &&  chown -R azdoagent:azdoagent /azdo
 
-# Change to AzDO Agent User
-USER azdoagent
 
 RUN cd "$(mktemp -d)" \
     && wget ${AZP_AGENTPACKAGE_URL} \
     && tar zxvf vsts-agent-linux-x64-3.227.2.tar.gz -C /azdo \
     && cd /azdo \
-    && ./config.sh --unattended \
+    && ./bin/installdependencies.sh \
+    &&  chmod -R 755 /azdo \
+    && rm -Rf /var/lib/apt/lists/* \
+    && rm -Rf /usr/share/doc \
+    && rm -Rf /usr/share/man \
+    && rm -Rf /var/cache/apt/* \
+    && apt-get clean
+
+# Change to AzDO Agent User
+USER azdoagent
+RUN ./config.sh --unattended \
         --agent "${AZP_AGENT_NAME:-$(hostname)}" \
         --url "${AZP_URL}" \
         --auth PAT \
@@ -162,7 +164,8 @@ RUN cd "$(mktemp -d)" \
         --pool "${AZP_POOL}" \
         --work "${AZP_WORK:-_work}" \
         --replace \
-        --acceptTeeEula & wait $!
+        --acceptTeeEula & wait $! 
+
 
 # Start the AzDO Agent Script
 RUN chmod +x run-docker.sh
