@@ -1,10 +1,6 @@
 
-<<<<<<< HEAD
 FROM  ubuntu:22.04
-=======
-FROM  ubuntu:23.10
->>>>>>> d83f926a108842cb9bbaa8077e1ef339f9adef31
-LABEL maintainer="bjr"
+LABEL maintainer="Hyperion"
 LABEL version="0.1.12"
 LABEL description="AzDO Agent as Docker Container"
 LABEL imagestatus="prod"
@@ -22,8 +18,10 @@ ENV PWSH_VERSION=7.3.8
 ENV TERRASPACE_VERSION=latest
 ENV AZCLI_VERSION=1.4.0
 ENV K9S_VERSION=0.27.4
+ENV YQ_VERSION=yq_linux_amd64
+ENV YQ_BINARY=4.35.2
 
-
+https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
 # https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#sort-multi-line-arguments
@@ -43,7 +41,6 @@ RUN apt-get update \
     iputils-ping \
     jq \
     lsb-release \
-    openssh-client \
     software-properties-common \
     unzip \
     vim \
@@ -71,18 +68,17 @@ RUN cd "$(mktemp -d)" \
     && rm -Rf /var/cache/apt/* \
     && apt-get clean
 
+RUN cd "$(mktemp -d)" \
+    && wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/v${YQ_BINARY}.tar.gz -O - | tar xz && mv ${YQ_BINARY} /usr/bin/yq
+
 # Install helm
 RUN cd "$(mktemp -d)" \
-    && wget https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
-    && tar zxvf helm-v${HELM_VERSION}-linux-amd64.tar.gz \
-    && mv linux-amd64/helm /usr/bin \
+    && wget https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz -O - | tar xz && mv linux-amd64/helm /usr/bin  \
     && helm plugin install https://github.com/databus23/helm-diff
 
 # Install helmfile
 RUN cd "$(mktemp -d)" \
-    && 	wget https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz \
-    && 	tar zxvf helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz \
-    &&  mv helmfile /usr/bin/helmfile
+    && 	wget https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz -O - | tar xz && mv helmfile /usr/bin/helmfile
 
 # Install kubectl
 RUN cd "$(mktemp -d)" \
@@ -92,9 +88,7 @@ RUN cd "$(mktemp -d)" \
 
 # Install kubelogin
 RUN cd "$(mktemp -d)" \
-    && wget https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip \
-    && unzip kubelogin-linux-amd64.zip \
-    && mv bin/linux_amd64/kubelogin /usr/bin/kubelogin
+    && wget https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip  -O - | unzip && mv bin/linux_amd64/kubelogin /usr/bin/kubelogin
 
 # Install powershell
 RUN cd "$(mktemp -d)"
@@ -119,7 +113,6 @@ RUN cd "$(mktemp -d)" \
 
 # Install kluctl
 RUN cd "$(mktemp -d)" \
-    && export kluctl_VERSION=${KLUCTL_VERSION} \
     && curl -s https://kluctl.io/install.sh | bash
 
 # Install krew
@@ -145,9 +138,9 @@ RUN cd "$(mktemp -d)" \
 WORKDIR /azdo
 
 ENV AZP_AGENTPACKAGE_URL=https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz
-ENV AZP_URL=https://dev.azure.com/FeistyEric
-ENV AZP_TOKEN=4zfk4dzlgqocevtagmosv6dkniujaatnjzlse3dq7765f6o4427a
-ENV AZP_POOL="sh"
+ENV AZP_URL=https://https://sita-pse.visualstudio.com/
+ENV AZP_TOKEN=4hdrmqzfeb4pj2cnlzjsx3whaeahbvm6kqjcdzo6dszc2apkrs6q
+ENV AZP_POOL="Hyperion-Dev"
 
 # Add the AzDO Agent User 
 RUN groupadd    --system --gid 1001 azdoagent \
