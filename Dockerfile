@@ -28,8 +28,8 @@ ENV YQ_BINARY=4.35.2
 
 # Create User and Base Install on Container
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN apt update \
+    && apt install -y --no-install-recommends \
     apt-transport-https \
     apt-utils \
     ca-certificates \
@@ -40,7 +40,6 @@ RUN apt-get update \
     iputils-ping \
     jq \
     lsb-release \
-    software-properties-common \
     unzip \
     vim \
     file \
@@ -67,8 +66,9 @@ RUN cd "$(mktemp -d)" \
     && rm -Rf /var/cache/apt/* \
     && apt-get clean
 
+# Install yq
 RUN cd "$(mktemp -d)" \
-    && wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/v${YQ_BINARY}.tar.gz -O - | tar xz && mv ${YQ_BINARY} /usr/bin/yq
+    && wget https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/${YQ_BINARY}.tar.gz -O - | tar xz && mv ${YQ_BINARY} /usr/bin/yq
 
 # Install helm
 RUN cd "$(mktemp -d)" \
