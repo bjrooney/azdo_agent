@@ -18,8 +18,8 @@ ENV PWSH_VERSION=7.3.8
 ENV TERRASPACE_VERSION=latest
 ENV AZCLI_VERSION=1.4.0
 ENV K9S_VERSION=0.27.4
-ENV YQ_VERSION=yq_linux_amd64
-ENV YQ_BINARY=4.35.2
+ENV YQ_VERSION=4.35.2
+ENV YQ_BINARY=yq_linux_amd64
 
 
 # Whenever possible, ease later changes by sorting multi-line arguments alphanumerically.
