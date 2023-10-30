@@ -1,0 +1,23 @@
+apiVersion: 2018-10-01
+location: westeurope
+name: AciGroup
+properties:
+  containers:
+  - name: self-hosted-agent-1
+    properties:
+      image: acrfeistyericregistry/dtw-base:0.1.3
+      resources:
+        requests:
+          cpu: 1
+          memoryInGB: 1.5
+  osType: Linux
+  restartPolicy: Always
+  networkProfile:
+    id: <network_profile_id>
+  imageRegistryCredentials:
+  - server: acrfeistyericregistry.azurecr.io
+    username: acrfeistyericregistry
+    password: +p/aCX55hiPuCQZBxi2cE1NKKpb8h6VPAa3lAwwZEs+ACRAsoKyW
+  
+  
+  

@@ -1,7 +1,7 @@
 
 FROM  ubuntu:22.04
 LABEL maintainer="Hyperion"
-LABEL version="0.1.1"
+LABEL version="0.1.3"
 LABEL description="AzDO Agent as Docker Container"
 LABEL imagestatus="prod"
 
@@ -97,8 +97,8 @@ RUN cd "$(mktemp -d)" \
     && mv terraform /usr/bin/terraform
 
 # Install terraspace
-RUN wget https://apt.boltops.com/packages/terraspace/terraspace-${TERRASPACE_VERSION}.deb \
-    && dpkg -i terraspace-${TERRASPACE_VERSION}.deb
+# RUN wget https://apt.boltops.com/packages/terraspace/terraspace-${TERRASPACE_VERSION}.deb \
+#     && dpkg -i terraspace-${TERRASPACE_VERSION}.deb
 
 # Install vendir
 RUN cd "$(mktemp -d)" \
@@ -118,23 +118,23 @@ RUN cd "$(mktemp -d)" \
 # && kubectl krew install kc ns ctx
 
 # Install k9s
-RUN cd "$(mktemp -d)" \
-    && curl -LO https://github.com/derailed/k9s/releases/download/v${K9S_VERSION}/k9s_Linux_amd64.tar.gz \
-    && tar zxvf k9s_Linux_amd64.tar.gz -C /usr/bin
+# RUN cd "$(mktemp -d)" \
+#     && curl -LO https://github.com/derailed/k9s/releases/download/v${K9S_VERSION}/k9s_Linux_amd64.tar.gz \
+#     && tar zxvf k9s_Linux_amd64.tar.gz -C /usr/bin
 
 # Install aws cli
-RUN cd "$(mktemp -d)" \
-    && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-    && unzip awscliv2.zip \
-    && ./aws/install
+# RUN cd "$(mktemp -d)" \
+#     && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+#     && unzip awscliv2.zip \
+#     && ./aws/install
 
 # Set the Working Directory
 WORKDIR /azdo
 
 ENV AZP_AGENTPACKAGE_URL=https://vstsagentpackage.azureedge.net/agent/3.227.2/vsts-agent-linux-x64-3.227.2.tar.gz
-ENV AZP_URL=https://sita-pse.visualstudio.com/
-ENV AZP_TOKEN=4hdrmqzfeb4pj2cnlzjsx3whaeahbvm6kqjcdzo6dszc2apkrs6q
-ENV AZP_POOL="Hyperion-Dev"
+ENV AZP_URL=https://dev.azure.com/FeistyEric
+ENV AZP_TOKEN=2svx64hwddauowxcqxr6hnkqfrwuh5jaexhzmzbcqntqyqtduura
+ENV AZP_POOL="sh"
 
 # Add the AzDO Agent User 
 RUN groupadd    --system --gid 1001 azdoagent \
