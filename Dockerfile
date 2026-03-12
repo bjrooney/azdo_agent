@@ -1,57 +1,61 @@
 
-FROM alpine
+FROM cgr.dev/chainguard/wolfi-base:latest
+
+ARG MELANGE_VERSION=0.45.3-r1
 
 RUN apk update \
     && apk upgrade \
-    && apk add --no-cache ncurses coreutils bash curl git icu-libs jq yq unzip make unzip python3  py3-pip  openssh 
+    && apk add --no-cache ncurses coreutils bash curl git icu-libs jq yq unzip make python3 py3-pip openssh "melange=${MELANGE_VERSION}"
 
 ENV TARGETARCH="linux-musl-x64"
+ENV MELANGE_VERSION=${MELANGE_VERSION}
 
-ENV VENDIR_VERSION=0.37.0
-ENV KLUCTL_VERSION=2.21.2
-ENV TERRAFORM_VERSION=1.6.3
-ENV KUBECTL_VERSION=1.26.6
-ENV KUBELOGIN_VERSION=0.0.32
-ENV AZCLI_VERSION=2.53.1
+ENV VENDIR_VERSION=0.45.2
+ENV KLUCTL_VERSION=2.27.0
+ENV TERRAFORM_VERSION=1.14.7
+ENV KUBECTL_VERSION=1.35.2
+ENV KUBELOGIN_VERSION=0.2.16
+ENV AZCLI_VERSION=2.84.0
 
 # Install Azure CLI
 RUN cd "$(mktemp -d)" \
-    && apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo \
-    && pip3 install --no-cache-dir --prefer-binary --upgrade pip \
-        azure-cli \
-    && apk del build \
+    && pip3 install --break-system-packages --no-cache-dir --prefer-binary --upgrade pip \
+        azure-cli==${AZCLI_VERSION} \
     && az version
 
 # Install kubectl
 RUN cd "$(mktemp -d)" \
-    && curl -LO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+    && curl -fsSLO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
     && chmod +x kubectl \
     && mv kubectl /usr/bin/kubectl \
     && kubectl version --client
 
 # Install kubelogin
 RUN cd "$(mktemp -d)" \
-    && wget https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip \
+    && curl -fsSLO "https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip" \
     && unzip kubelogin-linux-amd64.zip \
     && mv bin/linux_amd64/kubelogin /usr/bin/kubelogin \
     && kubelogin --version
 
 # Install terraform
 RUN cd "$(mktemp -d)" \
-    && curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+    && curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
     && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
     && mv terraform /usr/bin/terraform \
     && terraform version --version
 
 # Install vendir
 RUN cd "$(mktemp -d)" \
-    && curl -s -L https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64 > /usr/bin/vendir \
+    && curl -fsSL "https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-amd64" > /usr/bin/vendir \
     && chmod +x /usr/bin/vendir \
-    && vendir --version 
+    && vendir --version
 
 # Install kluctl
 RUN cd "$(mktemp -d)" \
-    && curl -s https://kluctl.io/install.sh | bash \
+    && curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL -o kluctl.tar.gz "https://github.com/kluctl/kluctl/releases/download/v${KLUCTL_VERSION}/kluctl_v${KLUCTL_VERSION}_linux_amd64.tar.gz" \
+    && tar -xzf kluctl.tar.gz \
+    && mv kluctl /usr/bin/kluctl \
+    && chmod +x /usr/bin/kluctl \
     && kluctl version
 
 WORKDIR /azp/
@@ -59,12 +63,11 @@ WORKDIR /azp/
 COPY ./start.sh ./
 RUN chmod +x ./start.sh \
     && adduser -D agent \
-    && chown agent ./ \
-    && chmod -R  777 /tmp \
-    && chgrp -R agent /tmp \
-    && chown -R agent /tmp
+    && chown agent:agent ./start.sh \
+    && chmod -R 777 /tmp \
+    && chown -R agent:agent /tmp
 USER agent
 # Another option is to run the agent as root.
 ENV AGENT_ALLOW_RUNASROOT="false"
 
-ENTRYPOINT ./start.sh
+ENTRYPOINT ["./start.sh"]

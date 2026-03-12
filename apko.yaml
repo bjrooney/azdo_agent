@@ -1,0 +1,38 @@
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+    - ./melange.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+    - ./packages
+  packages:
+    - azdo-agent-tools
+
+accounts:
+  groups:
+    - groupname: agent
+      gid: 1000
+  users:
+    - username: agent
+      uid: 1000
+      gid: 1000
+  run-as: "1000"
+
+work-dir: /azp
+
+entrypoint:
+  command: /azp/start.sh
+
+environment:
+  TARGETARCH: linux-musl-x64
+  MELANGE_VERSION: 0.45.3-r1
+  VENDIR_VERSION: 0.45.2
+  KLUCTL_VERSION: 2.27.0
+  TERRAFORM_VERSION: 1.14.7
+  KUBECTL_VERSION: 1.35.2
+  KUBELOGIN_VERSION: 0.2.16
+  AZCLI_VERSION: 2.84.0
+  AGENT_ALLOW_RUNASROOT: "false"
+
+archs:
+  - amd64

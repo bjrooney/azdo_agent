@@ -1,0 +1,7 @@
+# Private signing key — never commit
+melange.rsa
+
+# Generated build artifacts — reproducible from melange.yaml + apko.yaml
+packages/
+azdo-agent-apko.tar
+sbom-*.spdx.json
