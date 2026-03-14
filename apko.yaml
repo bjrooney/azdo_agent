@@ -33,3 +33,4 @@ environment:
 
 archs:
   - amd64
+  - arm64

@@ -43,34 +43,60 @@ pipeline:
   - runs: |
       set -eux
 
+      case "${{build.arch}}" in
+        x86_64)  GOARCH=amd64 ;;
+        aarch64) GOARCH=arm64 ;;
+        *) echo "unsupported arch: ${{build.arch}}" >&2; exit 1 ;;
+      esac
+
       install -d "${{targets.destdir}}/azp" "${{targets.destdir}}/usr/bin"
       install -m 0755 start.sh "${{targets.destdir}}/azp/start.sh"
 
+      # kubectl
+      KUBECTL_SHA_amd64="924eb50779153f20cb668117d141440b95df2f325a64452d78dff9469145e277"
+      KUBECTL_SHA_arm64="cd859449f54ad2cb05b491c490c13bb836cdd0886ae013c0aed3dd67ff747467"
+      eval "KUBECTL_SHA=\$KUBECTL_SHA_${GOARCH}"
       curl -fsSL -o "${{targets.destdir}}/usr/bin/kubectl" \
-        "https://dl.k8s.io/release/v1.35.2/bin/linux/amd64/kubectl"
-      echo "924eb50779153f20cb668117d141440b95df2f325a64452d78dff9469145e277  ${{targets.destdir}}/usr/bin/kubectl" | sha256sum -c -
+        "https://dl.k8s.io/release/v1.35.2/bin/linux/${GOARCH}/kubectl"
+      echo "${KUBECTL_SHA}  ${{targets.destdir}}/usr/bin/kubectl" | sha256sum -c -
       chmod 0755 "${{targets.destdir}}/usr/bin/kubectl"
 
+      # kubelogin
+      KUBELOGIN_SHA_amd64="82772946d7424f8ff3b3e6e13509c985a70c2f2d5d1918175bab288923b37f9b"
+      KUBELOGIN_SHA_arm64="5716aa7f62275cd6393215cbcfa80baf5e79f105dc286043631845c60cd021ec"
+      eval "KUBELOGIN_SHA=\$KUBELOGIN_SHA_${GOARCH}"
       curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL -o kubelogin.zip \
-        "https://github.com/Azure/kubelogin/releases/download/v0.2.16/kubelogin-linux-amd64.zip"
-      echo "82772946d7424f8ff3b3e6e13509c985a70c2f2d5d1918175bab288923b37f9b  kubelogin.zip" | sha256sum -c -
+        "https://github.com/Azure/kubelogin/releases/download/v0.2.16/kubelogin-linux-${GOARCH}.zip"
+      echo "${KUBELOGIN_SHA}  kubelogin.zip" | sha256sum -c -
       unzip -q kubelogin.zip
-      install -m 0755 bin/linux_amd64/kubelogin "${{targets.destdir}}/usr/bin/kubelogin"
+      install -m 0755 bin/linux_${GOARCH}/kubelogin "${{targets.destdir}}/usr/bin/kubelogin"
 
+      # terraform
+      TERRAFORM_SHA_amd64="e8bbcefea8015156e04e2a325cde37a0b2fb761728bda548e2fe3b8ad7c18c96"
+      TERRAFORM_SHA_arm64="04f88ee8924db27c0e26c379721965273c80c9b6a94bc5d8d8048a69163952ba"
+      eval "TERRAFORM_SHA=\$TERRAFORM_SHA_${GOARCH}"
       curl -fsSL -o terraform.zip \
-        "https://releases.hashicorp.com/terraform/1.14.7/terraform_1.14.7_linux_amd64.zip"
-      echo "e8bbcefea8015156e04e2a325cde37a0b2fb761728bda548e2fe3b8ad7c18c96  terraform.zip" | sha256sum -c -
+        "https://releases.hashicorp.com/terraform/1.14.7/terraform_1.14.7_linux_${GOARCH}.zip"
+      echo "${TERRAFORM_SHA}  terraform.zip" | sha256sum -c -
       unzip -q terraform.zip
       install -m 0755 terraform "${{targets.destdir}}/usr/bin/terraform"
 
+      # vendir
+      VENDIR_SHA_amd64="ecd053b031fdebfe0486b263a7071320b033f60b6d9e6c6b74ad681f2d7068b5"
+      VENDIR_SHA_arm64="8fc36145ca85712f1d6d6b959d6240a7d1d5f6a6dd3850bad9ae848c65e42c56"
+      eval "VENDIR_SHA=\$VENDIR_SHA_${GOARCH}"
       curl -fsSL -o "${{targets.destdir}}/usr/bin/vendir" \
-        "https://github.com/carvel-dev/vendir/releases/download/v0.45.2/vendir-linux-amd64"
-      echo "ecd053b031fdebfe0486b263a7071320b033f60b6d9e6c6b74ad681f2d7068b5  ${{targets.destdir}}/usr/bin/vendir" | sha256sum -c -
+        "https://github.com/carvel-dev/vendir/releases/download/v0.45.2/vendir-linux-${GOARCH}"
+      echo "${VENDIR_SHA}  ${{targets.destdir}}/usr/bin/vendir" | sha256sum -c -
       chmod 0755 "${{targets.destdir}}/usr/bin/vendir"
 
+      # kluctl
+      KLUCTL_SHA_amd64="7b325b5c0e422da49bb54fb8a3ca3d7fddfcdeb220b9f0d4bc36625ece2eb9ae"
+      KLUCTL_SHA_arm64="aee6a10aa9472b362812645aa11ed10d8c2791a7ad67d9ed35b1356e039a2418"
+      eval "KLUCTL_SHA=\$KLUCTL_SHA_${GOARCH}"
       curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL -o kluctl.tar.gz \
-        "https://github.com/kluctl/kluctl/releases/download/v2.27.0/kluctl_v2.27.0_linux_amd64.tar.gz"
-      echo "7b325b5c0e422da49bb54fb8a3ca3d7fddfcdeb220b9f0d4bc36625ece2eb9ae  kluctl.tar.gz" | sha256sum -c -
+        "https://github.com/kluctl/kluctl/releases/download/v2.27.0/kluctl_v2.27.0_linux_${GOARCH}.tar.gz"
+      echo "${KLUCTL_SHA}  kluctl.tar.gz" | sha256sum -c -
       tar -xzf kluctl.tar.gz
       install -m 0755 kluctl "${{targets.destdir}}/usr/bin/kluctl"
 
