@@ -1,0 +1,55 @@
+name: Build Azure DevOps Agent Image
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-apko:
+    name: Build with melange + apko
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: ./build-apko.sh
+
+      - name: Load image
+        run: docker load -i azdo-agent-apko.tar
+
+      - name: Verify image tools
+        run: |
+          docker run --rm --entrypoint /bin/bash azdo-agent:apko-amd64 -lc '
+            set -e
+            kubectl version --client
+            az version
+            terraform version
+            vendir --version
+            kluctl version
+            melange version
+          '
+
+  build-dockerfile:
+    name: Build with Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t azdo-agent:dockerfile .
+
+      - name: Verify image tools
+        run: |
+          docker run --rm --entrypoint /bin/bash azdo-agent:dockerfile -lc '
+            set -e
+            kubectl version --client
+            az version
+            terraform version
+            vendir --version
+            kluctl version
+            melange version
+          '
