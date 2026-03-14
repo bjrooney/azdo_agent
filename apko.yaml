@@ -20,9 +20,6 @@ accounts:
 
 work-dir: /azp
 
-entrypoint:
-  command: /azp/start.sh
-
 environment:
   TARGETARCH: linux-musl-x64
   MELANGE_VERSION: 0.45.3-r1
