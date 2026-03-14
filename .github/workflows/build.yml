@@ -1,0 +1,77 @@
+name: Build Azure DevOps Agent Image
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-apko:
+    name: Build with melange + apko
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup melange
+        uses: chainguard-dev/actions/setup-melange@main
+
+      - name: Install apko
+        run: |
+          curl -fsSL -o apko.tar.gz \
+            "https://github.com/chainguard-dev/apko/releases/download/v1.1.14/apko_1.1.14_linux_amd64.tar.gz"
+          sudo tar -xzf apko.tar.gz --strip-components=1 -C /usr/local/bin apko_1.1.14_linux_amd64/apko
+          rm apko.tar.gz
+
+      - name: Generate signing key
+        run: melange keygen
+
+      - name: Build package
+        run: melange build melange.yaml --arch amd64 --signing-key melange.rsa --out-dir packages
+
+      - name: Build index
+        run: melange index --signing-key melange.rsa packages/x86_64/*.apk
+
+      - name: Build image
+        run: apko build apko.yaml azdo-agent:apko azdo-agent-apko.tar
+
+      - name: Load image
+        run: docker load -i azdo-agent-apko.tar
+
+      - name: Verify image tools
+        run: |
+          docker run --rm --entrypoint /bin/bash azdo-agent:apko-amd64 -lc '
+            set -e
+            kubectl version --client
+            az version
+            terraform version
+            vendir --version
+            kluctl version
+            melange version
+          '
+
+  build-dockerfile:
+    name: Build with Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t azdo-agent:dockerfile .
+
+      - name: Verify image tools
+        run: |
+          docker run --rm --entrypoint /bin/bash azdo-agent:dockerfile -lc '
+            set -e
+            kubectl version --client
+            az version
+            terraform version
+            vendir --version
+            kluctl version
+            melange version
+          '
