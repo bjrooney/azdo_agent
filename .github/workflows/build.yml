@@ -17,8 +17,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup melange
+        uses: chainguard-dev/actions/setup-melange@main
+
+      - name: Setup apko
+        uses: chainguard-dev/actions/setup-apko@main
+
+      - name: Generate signing key
+        run: melange keygen
+
+      - name: Build package
+        run: melange build melange.yaml --arch amd64 --signing-key melange.rsa --out-dir packages
+
+      - name: Build index
+        run: melange index --signing-key melange.rsa packages/x86_64/*.apk
+
       - name: Build image
-        run: ./build-apko.sh
+        run: apko build apko.yaml azdo-agent:apko azdo-agent-apko.tar
 
       - name: Load image
         run: docker load -i azdo-agent-apko.tar
