@@ -28,7 +28,7 @@ docker run --rm \
 docker run --rm \
   -v "$ROOT_DIR:/work" \
   -w /work \
-  --entrypoint apko \
+  --entrypoint /usr/bin/apko \
   cgr.dev/chainguard/apko:latest \
   build apko.yaml azdo-agent:apko azdo-agent-apko.tar
 
