@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Setup melange
         uses: chainguard-dev/actions/setup-melange@main
 
@@ -31,10 +34,12 @@ jobs:
         run: melange keygen
 
       - name: Build package
-        run: melange build melange.yaml --arch amd64 --signing-key melange.rsa --out-dir packages
+        run: melange build melange.yaml --arch amd64,arm64 --signing-key melange.rsa --out-dir packages
 
       - name: Build index
-        run: melange index --signing-key melange.rsa packages/x86_64/*.apk
+        run: |
+          melange index --signing-key melange.rsa packages/x86_64/*.apk
+          melange index --signing-key melange.rsa packages/aarch64/*.apk
 
       - name: Build image
         run: apko build apko.yaml azdo-agent:apko azdo-agent-apko.tar
@@ -42,9 +47,21 @@ jobs:
       - name: Load image
         run: docker load -i azdo-agent-apko.tar
 
-      - name: Verify image tools
+      - name: Verify amd64 image tools
         run: |
           docker run --rm --entrypoint /bin/bash azdo-agent:apko-amd64 -lc '
+            set -e
+            kubectl version --client
+            az version
+            terraform version
+            vendir --version
+            kluctl version
+            melange version
+          '
+
+      - name: Verify arm64 image tools
+        run: |
+          docker run --rm --platform linux/arm64 --entrypoint /bin/bash azdo-agent:apko-arm64 -lc '
             set -e
             kubectl version --client
             az version
