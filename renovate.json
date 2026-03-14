@@ -1,14 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "fileMatch": [
-    "(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$",
-    "(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$"
+  "extends": [
+    "config:recommended"
+  ],
+  "managerFilePatterns": [
+    "/(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$/",
+    "/(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$/"
   ],
   "packageRules": [
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["whitesource/renovate"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "whitesource/renovate"
+      ],
       "versioning": "semver"
     }
   ]
