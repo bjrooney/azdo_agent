@@ -17,11 +17,13 @@ docker run --rm --privileged \
   build melange.yaml --arch amd64 --signing-key melange.rsa --out-dir /work/packages
 
 # Ensure repository index exists and is signed for apko consumption.
+# Use sh -c so the glob is expanded inside the container.
 docker run --rm \
   -v "$ROOT_DIR:/work" \
   -w /work \
+  --entrypoint sh \
   cgr.dev/chainguard/melange:latest \
-  index --signing-key melange.rsa /work/packages/x86_64/*.apk
+  -c 'melange index --signing-key melange.rsa /work/packages/x86_64/*.apk'
 
 docker run --rm \
   -v "$ROOT_DIR:/work" \
