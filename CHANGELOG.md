@@ -2,7 +2,6 @@
 
 ## [0.6.1](https://github.com/bjrooney/azdo_agent/compare/v0.6.0...v0.6.1) (2026-03-15)
 
-
 ### Bug Fixes
 
 * use colon separator for apko --annotations flag ([b3e77d8](https://github.com/bjrooney/azdo_agent/commit/b3e77d805690c3fe6227cb1d12cc7d611210e06d))
