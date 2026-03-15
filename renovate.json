@@ -1,7 +1,28 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "cgr.dev/chainguard/wolfi-base",
+        "cgr.dev/chainguard/melange",
+        "cgr.dev/chainguard/apko"
+      ],
+      "pinDigests": true
+    }
+  ],
   "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^build-apko\\.sh$"],
+      "matchStrings": [
+        "MELANGE_IMAGE=\"(?<depName>cgr\\.dev/chainguard/melange)@(?<currentDigest>sha256:[a-f0-9]+)\"",
+        "APKO_IMAGE=\"(?<depName>cgr\\.dev/chainguard/apko)@(?<currentDigest>sha256:[a-f0-9]+)\""
+      ],
+      "currentValueTemplate": "latest",
+      "datasourceTemplate": "docker"
+    },
     {
       "customType": "regex",
       "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
@@ -44,10 +65,11 @@
     },
     {
       "customType": "regex",
-      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
-      "matchStrings": ["AZCLI_VERSION[=: ]+(?<currentValue>[\\d.]+(?:\\.[\\d]+)*)"],
-      "depNameTemplate": "azure-cli",
-      "datasourceTemplate": "pypi"
+      "fileMatch": ["^Dockerfile$", "^melange\\.yaml$"],
+      "matchStrings": ["az=(?<currentValue>[\\d.]+)(?:-r\\d+)?\\b"],
+      "depNameTemplate": "Azure/azure-cli",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^azure-cli-(?<version>.+)$"
     },
     {
       "customType": "regex",

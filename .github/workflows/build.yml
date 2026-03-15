@@ -22,7 +22,7 @@ jobs:
       #   uses: docker/setup-qemu-action@v3
 
       - name: Setup melange
-        uses: chainguard-dev/actions/setup-melange@main
+        uses: chainguard-dev/actions/setup-melange@v1.6.8
 
       - name: Install apko
         env:
