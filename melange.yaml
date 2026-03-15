@@ -5,6 +5,8 @@ package:
   description: Azure DevOps agent tools and startup script
   copyright:
     - license: MIT
+  options:
+    no-depends: true
   dependencies:
     runtime:
       - az~=2.84.0
