@@ -51,10 +51,11 @@
     },
     {
       "customType": "regex",
-      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
-      "matchStrings": ["AZCLI_VERSION[=: ]+(?<currentValue>[\\d.]+(?:\\.[\\d]+)*)"],
-      "depNameTemplate": "azure-cli",
-      "datasourceTemplate": "pypi"
+      "fileMatch": ["^Dockerfile$", "^melange\\.yaml$"],
+      "matchStrings": ["az=(?<currentValue>[\\d.]+)-r\\d+"],
+      "depNameTemplate": "Azure/azure-cli",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^azure-cli-(?<version>.+)$"
     },
     {
       "customType": "regex",

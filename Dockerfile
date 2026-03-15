@@ -6,10 +6,14 @@
 FROM cgr.dev/chainguard/wolfi-base:latest
 
 ARG MELANGE_VERSION=0.45.3-r1
+ARG AZCLI_VERSION=2.84.0-r2
 
 RUN apk update \
     && apk upgrade \
-    && apk add --no-cache ncurses coreutils bash curl git icu-libs jq yq unzip make python3 py3-pip openssh "melange=${MELANGE_VERSION}"
+    && apk add --no-cache ncurses coreutils bash curl git icu-libs jq yq unzip make openssh \
+        "melange=${MELANGE_VERSION}" \
+        "az=${AZCLI_VERSION}" \
+    && az version
 
 ENV TARGETARCH="linux-musl-x64"
 ENV MELANGE_VERSION=${MELANGE_VERSION}
@@ -19,13 +23,6 @@ ENV KLUCTL_VERSION=2.27.0
 ENV TERRAFORM_VERSION=1.14.7
 ENV KUBECTL_VERSION=1.35.2
 ENV KUBELOGIN_VERSION=0.2.16
-ENV AZCLI_VERSION=2.84.0
-
-# Install Azure CLI
-RUN cd "$(mktemp -d)" \
-    && pip3 install --break-system-packages --no-cache-dir --prefer-binary --upgrade pip \
-        azure-cli==${AZCLI_VERSION} \
-    && az version
 
 # Install kubectl
 RUN cd "$(mktemp -d)" \

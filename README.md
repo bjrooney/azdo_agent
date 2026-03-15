@@ -30,11 +30,11 @@ A `Dockerfile` based on `cgr.dev/chainguard/wolfi-base` installs the same toolch
 | Terraform | 1.14.7 | Yes (SHA256, both arches) |
 | vendir | 0.45.2 | Yes (SHA256, both arches) |
 | kluctl | 2.27.0 | Yes (SHA256, both arches) |
-| Azure CLI | 2.84.0 | No — installed via PyPI (`pip install`); no checksum available from upstream |
+| Azure CLI | 2.84.0-r2 | Yes — Wolfi `az` APK, verified by signed Wolfi repository index |
 | melange | 0.45.3-r1 | Yes — pinned Wolfi APK with signed repository |
 | Python 3, git, jq, yq, make, openssh, curl | Wolfi latest | Via signed Wolfi APK repository |
 
-> **Azure CLI note:** PyPI does not publish per-release SHA256 hashes for the `azure-cli` package in a machine-consumable format. The package is installed pinned to an exact version over HTTPS from `pypi.org`. This is a known supply chain gap; mitigating options include building a locked wheelhouse or packaging azure-cli as a Wolfi APK.
+> **Azure CLI** is installed as the Wolfi `az` APK rather than via `pip`. Package integrity is enforced by the signed Wolfi repository index (same supply chain assurance as all other Wolfi packages).
 
 ## Key Files
 
@@ -144,7 +144,7 @@ After rotating, all consumers of the local APK repository must re-import the new
 
 | Area | Limitation |
 |---|---|
-| Azure CLI | No SHA256 verification — PyPI does not publish per-release checksums |
+| Azure CLI epoch suffix | `az=2.84.0-r2` Wolfi APK epoch (`-r2`) is not tracked by Renovate — bump manually when Wolfi releases a new epoch |
 | Dockerfile | No binary checksum verification — not suitable for production |
 | Wolfi base packages | `python3`, `git`, `jq` etc. pull the latest Wolfi version at build time — not pinned |
 | arm64 CI | Disabled (commented out) — re-enable by uncommenting QEMU + arm64 steps in `build.yml` |

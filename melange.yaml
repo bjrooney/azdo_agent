@@ -7,6 +7,7 @@ package:
     - license: MIT
   dependencies:
     runtime:
+      - az=2.84.0-r2
       - bash
       - coreutils
       - curl
@@ -17,8 +18,6 @@ package:
       - melange=0.45.3-r1
       - ncurses
       - openssh
-      - py3-pip
-      - python3
       - unzip
       - yq
 
@@ -35,8 +34,6 @@ environment:
       - coreutils
       - curl
       - jq
-      - python3
-      - py3-pip
       - unzip
 
 pipeline:
@@ -45,12 +42,12 @@ pipeline:
 
       # Tool versions — kept in sync with apko.yaml environment: and Dockerfile ENV.
       # When bumping a version, also update the SHA256 pairs below (run update-checksums.sh).
+      # Azure CLI is installed as the Wolfi 'az' APK (pinned in runtime deps above).
       KUBECTL_VERSION=1.35.2
       KUBELOGIN_VERSION=0.2.16
       TERRAFORM_VERSION=1.14.7
       VENDIR_VERSION=0.45.2
       KLUCTL_VERSION=2.27.0
-      AZCLI_VERSION=2.84.0
 
       case "${{build.arch}}" in
         x86_64)  GOARCH=amd64 ;;
@@ -108,12 +105,3 @@ pipeline:
       echo "${KLUCTL_SHA}  kluctl.tar.gz" | sha256sum -c -
       tar -xzf kluctl.tar.gz
       install -m 0755 kluctl "${{targets.destdir}}/usr/bin/kluctl"
-
-      python3 -m pip install \
-        --break-system-packages \
-        --no-cache-dir \
-        --prefer-binary \
-        --prefix /usr \
-        --root "${{targets.destdir}}" \
-        azure-cli==${AZCLI_VERSION}
-

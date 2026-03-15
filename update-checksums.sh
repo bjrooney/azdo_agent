@@ -7,8 +7,9 @@
 # Reads current *_VERSION values from melange.yaml and fetches the authoritative
 # checksums from each project's release page. Rewrites the SHA256 lines in-place.
 #
-# Note: Azure CLI (AZCLI_VERSION) is installed via PyPI and has no per-release
-# SHA256 published by upstream. It is not handled here.
+# Note: Azure CLI is installed as the Wolfi 'az' APK (signed by Wolfi's repository key).
+# Its version is pinned in melange.yaml runtime deps and the Dockerfile ARG.
+# No separate checksum update is needed here — APK integrity is enforced by the signed index.
 
 set -euo pipefail
 
@@ -29,7 +30,7 @@ echo "  kubelogin      ${KUBELOGIN_VERSION}"
 echo "  terraform      ${TERRAFORM_VERSION}"
 echo "  vendir         ${VENDIR_VERSION}"
 echo "  kluctl         ${KLUCTL_VERSION}"
-echo "  azure-cli      (PyPI — no checksum available, skipped)"
+echo "  azure-cli      (Wolfi 'az' APK — integrity via signed APK index, no manual checksum needed)"
 echo
 
 # Helper: fetch a URL and assert the result is a non-empty 64-char hex string.
