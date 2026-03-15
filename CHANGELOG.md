@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/bjrooney/azdo_agent/compare/v0.2.0...v0.3.0) (2026-03-15)
+
+
+### Features
+
+* publish APK packages and index as release assets ([18dc079](https://github.com/bjrooney/azdo_agent/commit/18dc07923f3da45f9c1bbb3323989bc84303a551))
+
+
+### Bug Fixes
+
+* release-please version.txt and publish APK packages ([5c18728](https://github.com/bjrooney/azdo_agent/commit/5c1872883c240aa629943dfb2dea8de54e13556c))
+
 ## [0.2.0](https://github.com/bjrooney/azdo_agent/compare/v0.1.0...v0.2.0) (2026-03-15)
 
 
