@@ -24,10 +24,12 @@ jobs:
         uses: chainguard-dev/actions/setup-melange@main
 
       - name: Install apko
+        env:
+          APKO_VERSION: 1.1.14
         run: |
           curl -fsSL -o apko.tar.gz \
-            "https://github.com/chainguard-dev/apko/releases/download/v1.1.14/apko_1.1.14_linux_amd64.tar.gz"
-          sudo tar -xzf apko.tar.gz --strip-components=1 -C /usr/local/bin apko_1.1.14_linux_amd64/apko
+            "https://github.com/chainguard-dev/apko/releases/download/v${APKO_VERSION}/apko_${APKO_VERSION}_linux_amd64.tar.gz"
+          sudo tar -xzf apko.tar.gz --strip-components=1 -C /usr/local/bin apko_${APKO_VERSION}_linux_amd64/apko
           rm apko.tar.gz
 
       - name: Generate signing key

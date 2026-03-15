@@ -43,6 +43,15 @@ pipeline:
   - runs: |
       set -eux
 
+      # Tool versions — kept in sync with apko.yaml environment: and Dockerfile ENV.
+      # When bumping a version, also update the SHA256 pairs below (run update-checksums.sh).
+      KUBECTL_VERSION=1.35.2
+      KUBELOGIN_VERSION=0.2.16
+      TERRAFORM_VERSION=1.14.7
+      VENDIR_VERSION=0.45.2
+      KLUCTL_VERSION=2.27.0
+      AZCLI_VERSION=2.84.0
+
       case "${{build.arch}}" in
         x86_64)  GOARCH=amd64 ;;
         aarch64) GOARCH=arm64 ;;
@@ -57,7 +66,7 @@ pipeline:
       KUBECTL_SHA_arm64="cd859449f54ad2cb05b491c490c13bb836cdd0886ae013c0aed3dd67ff747467"
       eval "KUBECTL_SHA=\$KUBECTL_SHA_${GOARCH}"
       curl -fsSL -o "${{targets.destdir}}/usr/bin/kubectl" \
-        "https://dl.k8s.io/release/v1.35.2/bin/linux/${GOARCH}/kubectl"
+        "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${GOARCH}/kubectl"
       echo "${KUBECTL_SHA}  ${{targets.destdir}}/usr/bin/kubectl" | sha256sum -c -
       chmod 0755 "${{targets.destdir}}/usr/bin/kubectl"
 
@@ -66,7 +75,7 @@ pipeline:
       KUBELOGIN_SHA_arm64="5716aa7f62275cd6393215cbcfa80baf5e79f105dc286043631845c60cd021ec"
       eval "KUBELOGIN_SHA=\$KUBELOGIN_SHA_${GOARCH}"
       curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL -o kubelogin.zip \
-        "https://github.com/Azure/kubelogin/releases/download/v0.2.16/kubelogin-linux-${GOARCH}.zip"
+        "https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-${GOARCH}.zip"
       echo "${KUBELOGIN_SHA}  kubelogin.zip" | sha256sum -c -
       unzip -q kubelogin.zip
       install -m 0755 bin/linux_${GOARCH}/kubelogin "${{targets.destdir}}/usr/bin/kubelogin"
@@ -76,7 +85,7 @@ pipeline:
       TERRAFORM_SHA_arm64="04f88ee8924db27c0e26c379721965273c80c9b6a94bc5d8d8048a69163952ba"
       eval "TERRAFORM_SHA=\$TERRAFORM_SHA_${GOARCH}"
       curl -fsSL -o terraform.zip \
-        "https://releases.hashicorp.com/terraform/1.14.7/terraform_1.14.7_linux_${GOARCH}.zip"
+        "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${GOARCH}.zip"
       echo "${TERRAFORM_SHA}  terraform.zip" | sha256sum -c -
       unzip -q terraform.zip
       install -m 0755 terraform "${{targets.destdir}}/usr/bin/terraform"
@@ -86,7 +95,7 @@ pipeline:
       VENDIR_SHA_arm64="8fc36145ca85712f1d6d6b959d6240a7d1d5f6a6dd3850bad9ae848c65e42c56"
       eval "VENDIR_SHA=\$VENDIR_SHA_${GOARCH}"
       curl -fsSL -o "${{targets.destdir}}/usr/bin/vendir" \
-        "https://github.com/carvel-dev/vendir/releases/download/v0.45.2/vendir-linux-${GOARCH}"
+        "https://github.com/carvel-dev/vendir/releases/download/v${VENDIR_VERSION}/vendir-linux-${GOARCH}"
       echo "${VENDIR_SHA}  ${{targets.destdir}}/usr/bin/vendir" | sha256sum -c -
       chmod 0755 "${{targets.destdir}}/usr/bin/vendir"
 
@@ -95,7 +104,7 @@ pipeline:
       KLUCTL_SHA_arm64="aee6a10aa9472b362812645aa11ed10d8c2791a7ad67d9ed35b1356e039a2418"
       eval "KLUCTL_SHA=\$KLUCTL_SHA_${GOARCH}"
       curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL -o kluctl.tar.gz \
-        "https://github.com/kluctl/kluctl/releases/download/v2.27.0/kluctl_v2.27.0_linux_${GOARCH}.tar.gz"
+        "https://github.com/kluctl/kluctl/releases/download/v${KLUCTL_VERSION}/kluctl_v${KLUCTL_VERSION}_linux_${GOARCH}.tar.gz"
       echo "${KLUCTL_SHA}  kluctl.tar.gz" | sha256sum -c -
       tar -xzf kluctl.tar.gz
       install -m 0755 kluctl "${{targets.destdir}}/usr/bin/kluctl"
@@ -106,5 +115,5 @@ pipeline:
         --prefer-binary \
         --prefix /usr \
         --root "${{targets.destdir}}" \
-        azure-cli==2.84.0
+        azure-cli==${AZCLI_VERSION}
 
