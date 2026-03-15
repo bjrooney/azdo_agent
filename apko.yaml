@@ -25,6 +25,7 @@ entrypoint:
 
 environment:
   TARGETARCH: linux-musl-x64
+  AZDO_AGENT_VERSION: 4.269.0
   MELANGE_VERSION: 0.45.3-r1
   VENDIR_VERSION: 0.45.2
   KLUCTL_VERSION: 2.27.0
