@@ -6,7 +6,7 @@
 FROM cgr.dev/chainguard/wolfi-base:latest
 
 ARG MELANGE_VERSION=0.45.3-r1
-ARG AZCLI_VERSION=2.84.0
+ARG AZCLI_VERSION=~2.84.0
 
 RUN apk update \
     && apk upgrade \
