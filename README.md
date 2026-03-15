@@ -2,6 +2,27 @@
 
 A container image for running Azure DevOps self-hosted pipeline agents, built using the Wolfi-native supply-chain toolchain (melange + apko). A legacy Dockerfile build path is kept for reference but is not recommended for production use.
 
+## How it's built — Wolfi, Chainguard, melange, apko
+
+Traditional container builds use a Dockerfile: you start from a base image and layer commands that `curl` binaries, run `apt-get`, or call `pip install`. The result is an image whose contents are hard to audit — there is no signed manifest of what went in or why.
+
+This project uses the [Chainguard](https://www.chainguard.dev/) supply-chain toolchain instead.
+
+**[Wolfi](https://github.com/wolfi-dev/os)** is a minimal, musl-based Linux distribution maintained by Chainguard. Every package in the Wolfi repository is built from source with a signed SBOM and published with a cryptographically signed APK repository index. Because the index is signed, any APK you install from Wolfi can be traced back to its source and verified at install time — you are not trusting an opaque binary pulled from the internet.
+
+**[melange](https://github.com/chainguard-dev/melange)** is a tool for building APK packages from a declarative YAML spec. For this project, `melange.yaml` defines all the tool binaries the agent needs (kubectl, kubelogin, Terraform, vendir, kluctl). melange downloads each binary, verifies it against a pinned SHA256 checksum, and packages everything into a signed `.apk` file. The signing key is generated fresh on each CI run — no long-lived build secrets. melange uses Linux user namespaces (via bubblewrap) to run builds in isolation without Docker-in-Docker.
+
+**[apko](https://github.com/chainguard-dev/apko)** assembles a final OCI image directly from APK packages — no Dockerfile, no shell, no `RUN` layers. `apko.yaml` declares which packages go into the image (Wolfi base packages + the `azdo-agent-tools` APK built by melange), the user/group, the entrypoint, and environment variables. apko also generates an SPDX 2.3 SBOM automatically, giving a complete bill of materials for every image.
+
+**The result:** every binary in the image is either a signed Wolfi APK or was SHA256-verified by melange before being packaged. The image has no package manager, no shell extras, and a complete SBOM. This is the same approach Chainguard uses for its own hardened images.
+
+```
+melange.yaml  →  melange build  →  azdo-agent-tools.apk  (signed)
+                                           │
+apko.yaml  ──────────────────────────────→  apko build  →  OCI image + SBOM
+                  (Wolfi base packages) ──┘
+```
+
 ## Quick Start
 
 Download and run the latest pre-built image from GitHub Releases — no build required.
