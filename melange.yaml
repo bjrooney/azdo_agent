@@ -43,6 +43,7 @@ pipeline:
       # Tool versions — kept in sync with apko.yaml environment: and Dockerfile ENV.
       # When bumping a version, also update the SHA256 pairs below (run update-checksums.sh).
       # Azure CLI is installed as the Wolfi 'az' APK (pinned in runtime deps above).
+      AZDO_AGENT_VERSION=4.269.0
       KUBECTL_VERSION=1.35.2
       KUBELOGIN_VERSION=0.2.16
       TERRAFORM_VERSION=1.14.7
@@ -57,6 +58,22 @@ pipeline:
 
       install -d "${{targets.destdir}}/azp" "${{targets.destdir}}/usr/bin"
       install -m 0755 start.sh "${{targets.destdir}}/azp/start.sh"
+
+      # Azure Pipelines agent — pre-baked to avoid ~30-60s download on every container start.
+      # The agent is extracted to /azp/; start.sh skips the download if run.sh already exists.
+      # Bump AZDO_AGENT_VERSION and update SHA256 pairs when a new agent version is released.
+      AZDO_AGENT_SHA_amd64="59dad31d38d326d81c2e43b751dd831d73077c05345843443ee6f1e4f9419686"
+      AZDO_AGENT_SHA_arm64="300d01fcf32769ea3c922f6e7db578a38b4e93c44715c13dfa9815538fb1522c"
+      case "${{build.arch}}" in
+        x86_64)  AZDO_ARCH=musl-x64 ;;
+        aarch64) AZDO_ARCH=musl-arm64 ;;
+      esac
+      eval "AZDO_AGENT_SHA=\$AZDO_AGENT_SHA_${GOARCH}"
+      curl -fsSL -o azdo-agent.tar.gz \
+        "https://download.agent.dev.azure.com/agent/${AZDO_AGENT_VERSION}/vsts-agent-linux-${AZDO_ARCH}-${AZDO_AGENT_VERSION}.tar.gz"
+      echo "${AZDO_AGENT_SHA}  azdo-agent.tar.gz" | sha256sum -c -
+      tar -xzf azdo-agent.tar.gz -C "${{targets.destdir}}/azp"
+      rm azdo-agent.tar.gz
 
       # kubectl
       KUBECTL_SHA_amd64="924eb50779153f20cb668117d141440b95df2f325a64452d78dff9469145e277"
