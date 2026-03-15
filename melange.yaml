@@ -7,7 +7,7 @@ package:
     - license: MIT
   dependencies:
     runtime:
-      - az=2.84.0
+      - az~=2.84.0
       - bash
       - coreutils
       - curl
