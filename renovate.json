@@ -4,11 +4,25 @@
   "packageRules": [
     {
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["cgr.dev/chainguard/wolfi-base"],
+      "matchPackageNames": [
+        "cgr.dev/chainguard/wolfi-base",
+        "cgr.dev/chainguard/melange",
+        "cgr.dev/chainguard/apko"
+      ],
       "pinDigests": true
     }
   ],
   "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^build-apko\\.sh$"],
+      "matchStrings": [
+        "MELANGE_IMAGE=\"(?<depName>cgr\\.dev/chainguard/melange)@(?<currentDigest>sha256:[a-f0-9]+)\"",
+        "APKO_IMAGE=\"(?<depName>cgr\\.dev/chainguard/apko)@(?<currentDigest>sha256:[a-f0-9]+)\""
+      ],
+      "currentValueTemplate": "latest",
+      "datasourceTemplate": "docker"
+    },
     {
       "customType": "regex",
       "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
