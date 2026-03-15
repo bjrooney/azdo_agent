@@ -1,4 +1,8 @@
 
+# NOTE: This Dockerfile is a reference/fallback only.
+# It does NOT verify SHA256 checksums for downloaded binaries and is NOT suitable for production.
+# Use the melange + apko pipeline (build-apko.sh) for production builds.
+
 FROM cgr.dev/chainguard/wolfi-base:latest
 
 ARG MELANGE_VERSION=0.45.3-r1
@@ -64,7 +68,7 @@ COPY ./start.sh ./
 RUN chmod +x ./start.sh \
     && adduser -D agent \
     && chown agent:agent ./start.sh \
-    && chmod -R 777 /tmp \
+    && chmod 1777 /tmp \
     && chown -R agent:agent /tmp
 USER agent
 # Another option is to run the agent as root.
