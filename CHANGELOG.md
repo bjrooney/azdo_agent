@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.3](https://github.com/bjrooney/azdo_agent/compare/v0.6.2...v0.6.3) (2026-03-15)
+
+
+### Bug Fixes
+
+* use pipe syntax for Mermaid edge labels to fix render error ([839f924](https://github.com/bjrooney/azdo_agent/commit/839f924fb1dbc223c1838a297ff579c521ecce46))
+* use pipe syntax for Mermaid edge labels to fix render error ([7948ae4](https://github.com/bjrooney/azdo_agent/commit/7948ae42b3c4e884ad99b669bb511bcd90733d24))
+
 ## [0.6.2](https://github.com/bjrooney/azdo_agent/compare/v0.6.1...v0.6.2) (2026-03-15)
 
 
