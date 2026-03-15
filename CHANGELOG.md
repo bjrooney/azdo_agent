@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/bjrooney/azdo_agent/compare/v0.5.0...v0.6.0) (2026-03-15)
+
+
+### Features
+
+* add OCI image annotations and push vMAJOR semver tag ([0044940](https://github.com/bjrooney/azdo_agent/commit/0044940eb631d189d7bf3670f68bb229d2f4f347))
+* add OCI image annotations and push vMAJOR semver tag ([dcba9a1](https://github.com/bjrooney/azdo_agent/commit/dcba9a19024005e644b14ab567674ba06d3daf3e))
+
 ## [0.5.0](https://github.com/bjrooney/azdo_agent/compare/v0.4.1...v0.5.0) (2026-03-15)
 
 
