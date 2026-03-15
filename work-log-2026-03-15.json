@@ -1,0 +1,149 @@
+{
+  "date": "2026-03-15",
+  "project": "azdo-agent",
+  "repository": "https://github.com/bjrooney/azdo_agent",
+  "branch": "copilot/create-build-pipeline",
+  "summary": "Added OCI image annotations and version tagging to the publish pipeline, then performed a security vulnerability scan of the local image and triaged findings.",
+  "timeline": [
+    {
+      "time_order": 1,
+      "task": "Add OCI image annotations",
+      "description": "Added standard OCI image labels to apko.yaml (static) and publish.yml (dynamic). Static labels cover title, description, licenses, vendor, and source URL. Dynamic labels injected at CI build time cover version, git revision, and created timestamp.",
+      "files_changed": [
+        "apko.yaml",
+        ".github/workflows/publish.yml"
+      ],
+      "details": {
+        "static_labels": [
+          "org.opencontainers.image.title",
+          "org.opencontainers.image.description",
+          "org.opencontainers.image.licenses",
+          "org.opencontainers.image.vendor",
+          "org.opencontainers.image.source"
+        ],
+        "dynamic_labels": [
+          "org.opencontainers.image.version",
+          "org.opencontainers.image.revision",
+          "org.opencontainers.image.created"
+        ],
+        "vendor": "Feisty Eric",
+        "source": "https://github.com/bjrooney/azdo_agent"
+      }
+    },
+    {
+      "time_order": 2,
+      "task": "Add vMAJOR semver tag to image push",
+      "description": "Updated the publish workflow push step to tag and push a floating vMAJOR tag (e.g. v0) alongside the exact release tag and latest. Allows consumers to pin to a major version.",
+      "files_changed": [
+        ".github/workflows/publish.yml"
+      ],
+      "details": {
+        "tags_pushed": [
+          "${TAG} (e.g. v0.3.0)",
+          "vMAJOR (e.g. v0)",
+          "latest"
+        ],
+        "registry": "ghcr.io/bjrooney/azdo-agent"
+      }
+    },
+    {
+      "time_order": 3,
+      "task": "Commit and push changes",
+      "description": "Staged and committed changes to branch copilot/create-build-pipeline and pushed to origin.",
+      "commit": {
+        "sha": "dcba9a1",
+        "message": "feat: add OCI image annotations and push vMAJOR semver tag"
+      }
+    },
+    {
+      "time_order": 4,
+      "task": "Security vulnerability scan with grype",
+      "description": "Ran grype against the local azdo-agent:apko-amd64 image (exported as docker-archive tar). Identified 44 vulnerabilities, all in Go modules and one Python package. No OS-level CVEs.",
+      "tool": "grype",
+      "image_scanned": "azdo-agent:apko-amd64",
+      "vulnerability_summary": {
+        "critical": 1,
+        "high": 19,
+        "medium": 18,
+        "low": 6,
+        "total": 44
+      },
+      "notable_findings": [
+        {
+          "severity": "Critical",
+          "package": "stdlib",
+          "version": "go1.24.4",
+          "cve": "CVE-2025-68121",
+          "fixed_in": "go1.24.13, go1.25.7"
+        },
+        {
+          "severity": "High",
+          "package": "helm.sh/helm/v3",
+          "version": "v3.18.3",
+          "advisories": ["GHSA-557j-xg8c-q2mm", "GHSA-9h84-qmv7-982p"],
+          "fixed_in": "v3.18.4, v3.18.5",
+          "binary": "/usr/bin/kluctl"
+        },
+        {
+          "severity": "High",
+          "package": "github.com/docker/cli",
+          "version": "v28.3.1+incompatible",
+          "advisory": "GHSA-p436-gjf2-799p",
+          "fixed_in": "v29.2.0",
+          "binary": "/usr/bin/kluctl"
+        },
+        {
+          "severity": "High",
+          "package": "github.com/docker/cli",
+          "version": "v28.2.2+incompatible",
+          "advisory": "GHSA-p436-gjf2-799p",
+          "fixed_in": "v29.2.0",
+          "binary": "/usr/bin/vendir"
+        },
+        {
+          "severity": "High",
+          "package": "github.com/containerd/containerd",
+          "version": "v1.7.27",
+          "advisories": ["GHSA-m6hq-p25p-ffr2", "GHSA-pwhc-rpq9-4c8w"],
+          "fixed_in": "v1.7.29",
+          "binary": "/usr/bin/kluctl"
+        },
+        {
+          "severity": "High",
+          "package": "pyjwt",
+          "version": "2.11.0",
+          "advisory": "GHSA-752w-5fwx-jx9f",
+          "fixed_in": "2.12.0",
+          "note": "Inside Azure CLI Python environment"
+        }
+      ]
+    },
+    {
+      "time_order": 5,
+      "task": "Triage vulnerabilities — check upstream tool releases",
+      "description": "Checked latest stable releases for kluctl and vendir. Both are already at latest stable. Checked kluctl v2.28.0-devel branch — helm and docker/cli bumped but containerd still on v1.7.27. No actionable upgrade available yet.",
+      "findings": {
+        "kluctl": {
+          "current_version": "2.27.0",
+          "latest_stable": "2.27.0",
+          "devel_version": "2.28.0-devel",
+          "devel_fixes": ["helm bumped to 3.18.6", "docker/cli bumped to v28.3.3"],
+          "devel_outstanding": ["containerd still on v1.7.27"],
+          "action": "Bump to v2.28.0 when stable release is cut"
+        },
+        "vendir": {
+          "current_version": "0.45.2",
+          "latest_stable": "0.45.2",
+          "action": "No fix available upstream yet — monitor for new release"
+        }
+      },
+      "risk_assessment": "All EPSS scores <0.1% — exploitation likelihood is very low. No immediate action required."
+    },
+    {
+      "time_order": 6,
+      "task": "Save memory reminder",
+      "description": "Saved a memory note to remind us to bump kluctl to v2.28.0 when the stable release is published.",
+      "memory_file": "project_kluctl_bump.md"
+    }
+  ]
+}
