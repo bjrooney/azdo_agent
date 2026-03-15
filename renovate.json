@@ -1,21 +1,61 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "managerFilePatterns": [
-    "/(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$/",
-    "/(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$/"
-  ],
-  "packageRules": [
+  "extends": ["config:recommended"],
+  "customManagers": [
     {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "whitesource/renovate"
-      ],
-      "versioning": "semver"
+      "customType": "regex",
+      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
+      "matchStrings": ["KUBECTL_VERSION[=: ]+(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "kubernetes/kubernetes",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
+      "matchStrings": ["KUBELOGIN_VERSION[=: ]+(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "Azure/kubelogin",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
+      "matchStrings": ["TERRAFORM_VERSION[=: ]+(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "hashicorp/terraform",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
+      "matchStrings": ["VENDIR_VERSION[=: ]+(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "carvel-dev/vendir",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
+      "matchStrings": ["KLUCTL_VERSION[=: ]+(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "kluctl/kluctl",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^Dockerfile$", "^apko\\.yaml$", "^melange\\.yaml$"],
+      "matchStrings": ["AZCLI_VERSION[=: ]+(?<currentValue>[\\d.]+(?:\\.[\\d]+)*)"],
+      "depNameTemplate": "azure-cli",
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.github/workflows/[^/]+\\.ya?ml$"],
+      "matchStrings": ["APKO_VERSION[=: ]+(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "chainguard-dev/apko",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
     }
   ]
 }
