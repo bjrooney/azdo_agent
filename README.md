@@ -30,7 +30,7 @@ A `Dockerfile` based on `cgr.dev/chainguard/wolfi-base` installs the same toolch
 | Terraform | 1.14.7 | Yes (SHA256, both arches) |
 | vendir | 0.45.2 | Yes (SHA256, both arches) |
 | kluctl | 2.27.0 | Yes (SHA256, both arches) |
-| Azure CLI | 2.84.0-r2 | Yes — Wolfi `az` APK, verified by signed Wolfi repository index |
+| Azure CLI | 2.84.0 | Yes — Wolfi `az` APK, verified by signed Wolfi repository index |
 | melange | 0.45.3-r1 | Yes — pinned Wolfi APK with signed repository |
 | Python 3, git, jq, yq, make, openssh, curl | Wolfi latest | Via signed Wolfi APK repository |
 
@@ -144,7 +144,7 @@ After rotating, all consumers of the local APK repository must re-import the new
 
 | Area | Limitation |
 |---|---|
-| Azure CLI epoch suffix | `az=2.84.0-r2` Wolfi APK epoch (`-r2`) is not tracked by Renovate — bump manually when Wolfi releases a new epoch |
+| Azure CLI epoch suffix | `az=2.84.0` (no `-rN` epoch) — APK selects the latest epoch of that version automatically, so Wolfi security-patch epochs are picked up without a code change |
 | Dockerfile | No binary checksum verification — not suitable for production |
 | Wolfi base packages | `python3`, `git`, `jq` etc. pull the latest Wolfi version at build time — not pinned |
 | arm64 CI | Disabled (commented out) — re-enable by uncommenting QEMU + arm64 steps in `build.yml` |

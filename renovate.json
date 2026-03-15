@@ -52,7 +52,7 @@
     {
       "customType": "regex",
       "fileMatch": ["^Dockerfile$", "^melange\\.yaml$"],
-      "matchStrings": ["az=(?<currentValue>[\\d.]+)-r\\d+"],
+      "matchStrings": ["az=(?<currentValue>[\\d.]+)(?:-r\\d+)?\\b"],
       "depNameTemplate": "Azure/azure-cli",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^azure-cli-(?<version>.+)$"
