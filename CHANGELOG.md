@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0](https://github.com/bjrooney/azdo_agent/compare/v0.4.1...v0.5.0) (2026-03-15)
+
+
+### Features
+
+* pre-bake Azure Pipelines agent into image to eliminate startup download ([514106a](https://github.com/bjrooney/azdo_agent/commit/514106a01d7f013709aae370b4899ec71f46fe30))
+
+
+### Bug Fixes
+
+* add musl runtime dep for pre-baked Azure Pipelines agent binaries ([5c2c297](https://github.com/bjrooney/azdo_agent/commit/5c2c297069ff6cef5f57bbaf757bdbdd763a6d56))
+* move musl dep to apko.yaml for agent binary shared library resolution ([c8121e0](https://github.com/bjrooney/azdo_agent/commit/c8121e0746c33426f5cd3ade61409c0d72daf6d1))
+* suppress melange auto-dep scanning for agent binaries ([af36f66](https://github.com/bjrooney/azdo_agent/commit/af36f66cabba3d1c680901448f5465659ece872e))
+
 ## [0.4.1](https://github.com/bjrooney/azdo_agent/compare/v0.4.0...v0.4.1) (2026-03-15)
 
 
