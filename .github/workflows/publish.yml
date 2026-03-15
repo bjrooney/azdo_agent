@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build-and-publish:
@@ -46,6 +47,23 @@ jobs:
 
       - name: Build image
         run: apko build --arch amd64 apko.yaml azdo-agent:apko azdo-agent-apko.tar
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image to ghcr.io
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          REPO="ghcr.io/${{ github.repository_owner }}/azdo-agent"
+          docker load -i azdo-agent-apko.tar
+          docker tag azdo-agent:apko-amd64 "${REPO}:${TAG}"
+          docker tag azdo-agent:apko-amd64 "${REPO}:latest"
+          docker push "${REPO}:${TAG}"
+          docker push "${REPO}:latest"
 
       - name: Upload image tar
         env:
