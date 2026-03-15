@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.2](https://github.com/bjrooney/azdo_agent/compare/v0.6.1...v0.6.2) (2026-03-15)
+
+
+### Bug Fixes
+
+* repair publish workflow annotation format and major tag extraction ([f1c2474](https://github.com/bjrooney/azdo_agent/commit/f1c24744f3549103e1a63634fd6dc303d5e804b6))
+* strip leading v before extracting major version for tag ([222ecff](https://github.com/bjrooney/azdo_agent/commit/222ecffc15650084d45103c8585c97f54fa31662))
+
 ## [0.6.1](https://github.com/bjrooney/azdo_agent/compare/v0.6.0...v0.6.1) (2026-03-15)
 
 ### Bug Fixes
