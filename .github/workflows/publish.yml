@@ -1,0 +1,67 @@
+name: Publish Release Assets
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish assets for (e.g. v0.2.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    name: Build image and upload assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Setup melange
+        uses: chainguard-dev/actions/setup-melange@v1.6.8
+
+      - name: Install apko
+        env:
+          APKO_VERSION: 1.1.14
+        run: |
+          curl -fsSL -o apko.tar.gz \
+            "https://github.com/chainguard-dev/apko/releases/download/v${APKO_VERSION}/apko_${APKO_VERSION}_linux_amd64.tar.gz"
+          sudo tar -xzf apko.tar.gz --strip-components=1 -C /usr/local/bin \
+            apko_${APKO_VERSION}_linux_amd64/apko
+          rm apko.tar.gz
+
+      - name: Generate signing key
+        run: melange keygen
+
+      - name: Build package
+        run: melange build melange.yaml --arch amd64 --signing-key melange.rsa --out-dir packages
+
+      - name: Build index
+        run: melange index --signing-key melange.rsa packages/x86_64/*.apk
+
+      - name: Build image
+        run: apko build --arch amd64 apko.yaml azdo-agent:apko azdo-agent-apko.tar
+
+      - name: Upload image tar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload \
+            "${{ github.event.inputs.tag || github.ref_name }}" \
+            azdo-agent-apko.tar \
+            --clobber
+
+      - name: Upload SBOM files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for f in sbom-*.spdx.json; do
+            [ -f "$f" ] && gh release upload \
+              "${{ github.event.inputs.tag || github.ref_name }}" \
+              "$f" --clobber
+          done
