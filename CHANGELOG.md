@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/bjrooney/azdo_agent/compare/v0.4.0...v0.4.1) (2026-03-15)
+
+
+### Bug Fixes
+
+* restore entrypoint /azp/start.sh in apko.yaml ([a47a54b](https://github.com/bjrooney/azdo_agent/commit/a47a54baded5bd444d10ff7c07d20225fff3b76e))
+
 ## [0.4.0](https://github.com/bjrooney/azdo_agent/compare/v0.3.0...v0.4.0) (2026-03-15)
 
 
