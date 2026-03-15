@@ -63,7 +63,7 @@ jobs:
       - name: Push image to ghcr.io
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          MAJOR_TAG="v$(echo "${TAG}" | grep -oP '^\d+')"
+          MAJOR_TAG="v$(echo "${TAG#v}" | cut -d. -f1)"
           REPO="ghcr.io/${{ github.repository_owner }}/azdo-agent"
           docker load -i azdo-agent-apko.tar
           docker tag azdo-agent:apko-amd64 "${REPO}:${TAG}"
