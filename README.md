@@ -25,25 +25,21 @@ apko.yaml  ───────────────────────
 
 ## Quick Start
 
-Download and run the latest pre-built image from GitHub Releases — no build required.
+Pull and run the latest image directly from GitHub Container Registry:
 
 ```bash
-# Download the image tar from the latest release
-gh release download --repo <your-org>/<your-repo> --pattern "azdo-agent-apko.tar"
+docker pull ghcr.io/bjrooney/azdo-agent:latest
 
-# Load into Docker
-docker load -i azdo-agent-apko.tar
-# Output: Loaded image: azdo-agent:apko-amd64
-
-# Run the agent
 docker run --rm \
   -e AZP_URL=https://dev.azure.com/myorg \
   -e AZP_TOKEN=<your-pat> \
   -e AZP_POOL=MyPool \
-  azdo-agent:apko-amd64
+  ghcr.io/bjrooney/azdo-agent:latest
 ```
 
 `AZP_TOKEN` must be a Personal Access Token with **Agent Pools (read & manage)** scope. The agent registers itself on startup and deregisters cleanly on `SIGTERM`/`SIGINT`.
+
+Versioned tags are also available (e.g. `ghcr.io/bjrooney/azdo-agent:v0.3.0`). The OCI image tar, SBOM, and signed APK packages are attached to each [GitHub Release](../../releases) as well.
 
 ## Build from Source
 
