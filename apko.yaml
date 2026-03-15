@@ -1,3 +1,10 @@
+annotations:
+  "org.opencontainers.image.title": "azdo-agent"
+  "org.opencontainers.image.description": "Azure DevOps self-hosted agent with pre-baked tools (kubectl, kubelogin, terraform, vendir, kluctl, az cli)"
+  "org.opencontainers.image.licenses": "MIT"
+  "org.opencontainers.image.vendor": "Feisty Eric"
+  "org.opencontainers.image.source": "https://github.com/bjrooney/azdo_agent"
+
 contents:
   keyring:
     - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub

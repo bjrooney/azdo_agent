@@ -46,7 +46,12 @@ jobs:
         run: melange index --signing-key melange.rsa packages/x86_64/*.apk
 
       - name: Build image
-        run: apko build --arch amd64 apko.yaml azdo-agent:apko azdo-agent-apko.tar
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          apko build --arch amd64 apko.yaml azdo-agent:apko azdo-agent-apko.tar \
+            --annotations "org.opencontainers.image.version=${TAG}" \
+            --annotations "org.opencontainers.image.revision=${{ github.sha }}" \
+            --annotations "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
@@ -58,11 +63,14 @@ jobs:
       - name: Push image to ghcr.io
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          MAJOR_TAG="v$(echo "${TAG}" | grep -oP '^\d+')"
           REPO="ghcr.io/${{ github.repository_owner }}/azdo-agent"
           docker load -i azdo-agent-apko.tar
           docker tag azdo-agent:apko-amd64 "${REPO}:${TAG}"
+          docker tag azdo-agent:apko-amd64 "${REPO}:${MAJOR_TAG}"
           docker tag azdo-agent:apko-amd64 "${REPO}:latest"
           docker push "${REPO}:${TAG}"
+          docker push "${REPO}:${MAJOR_TAG}"
           docker push "${REPO}:latest"
 
       - name: Upload image tar

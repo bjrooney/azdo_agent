@@ -22,13 +22,18 @@ docker run --rm --privileged \
   build melange.yaml --arch amd64,arm64 --signing-key melange.rsa --out-dir /work/packages
 
 # Ensure repository index exists and is signed for apko consumption.
-# Use sh -c so the glob is expanded inside the container.
+# Globs use relative paths (host CWD=$ROOT_DIR, container -w /work) so expansion works on host.
 docker run --rm \
   -v "$ROOT_DIR:/work" \
   -w /work \
-  --entrypoint sh \
   "${MELANGE_IMAGE}" \
-  -c 'melange index --signing-key melange.rsa /work/packages/x86_64/*.apk && melange index --signing-key melange.rsa /work/packages/aarch64/*.apk'
+  index --signing-key melange.rsa packages/x86_64/*.apk
+
+docker run --rm \
+  -v "$ROOT_DIR:/work" \
+  -w /work \
+  "${MELANGE_IMAGE}" \
+  index --signing-key melange.rsa packages/aarch64/*.apk
 
 docker run --rm \
   -v "$ROOT_DIR:/work" \
