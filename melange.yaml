@@ -9,6 +9,7 @@ package:
     runtime:
       - az~=2.84.0
       - bash
+      - musl
       - coreutils
       - curl
       - git
