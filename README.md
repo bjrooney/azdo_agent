@@ -292,13 +292,12 @@ The agent registers itself on startup and deregisters cleanly on `SIGTERM`/`SIGI
 
 ## Updating Tool Versions
 
-[Renovate](https://docs.renovatebot.com/) automatically opens PRs when new versions are available for all tracked tools. Version variables are defined in three files that must stay in sync:
+[Renovate](https://docs.renovatebot.com/) automatically opens PRs when new versions are available for all tracked tools. Version variables are defined in two files:
 
-- `melange.yaml` — pipeline shell variables + SHA256 checksums (source of truth for the build)
-- `apko.yaml` — `environment:` entries (runtime env vars baked into the image)
-- `Dockerfile` — `ENV` declarations (fallback path only)
+- `melange.yaml` — pipeline shell variables + SHA256 checksums (single source of truth for all tool versions)
+- `Dockerfile` — `ENV` declarations (fallback path; Renovate keeps this in sync)
 
-Renovate updates the version strings in all three files. **SHA256 checksums in `melange.yaml` are not updated automatically** — after a Renovate PR lands, run:
+Renovate updates version strings in `melange.yaml` and `Dockerfile`. `apko.yaml` no longer duplicates version variables — only `TARGETARCH` and `AGENT_ALLOW_RUNASROOT` are baked as env vars, since no version variable is used at runtime. **SHA256 checksums in `melange.yaml` are not updated automatically** — after a Renovate PR lands, run:
 
 ```bash
 ./update-checksums.sh
