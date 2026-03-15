@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/bjrooney/azdo_agent/compare/v0.3.0...v0.4.0) (2026-03-15)
+
+
+### Features
+
+* publish OCI image to GitHub Container Registry on release ([b2c87c8](https://github.com/bjrooney/azdo_agent/commit/b2c87c83f3c3babc0229095e1a005da224cb1286))
+* publish OCI image to GitHub Container Registry on release ([7051ab4](https://github.com/bjrooney/azdo_agent/commit/7051ab40812f6d6d259412237f7273c859d7b7c0))
+
 ## [0.3.0](https://github.com/bjrooney/azdo_agent/compare/v0.2.0...v0.3.0) (2026-03-15)
 
 
