@@ -65,3 +65,13 @@ jobs:
               "${{ github.event.inputs.tag || github.ref_name }}" \
               "$f" --clobber
           done
+
+      - name: Upload APK packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for f in packages/x86_64/*.apk packages/x86_64/APKINDEX.tar.gz; do
+            [ -f "$f" ] && gh release upload \
+              "${{ github.event.inputs.tag || github.ref_name }}" \
+              "$f" --clobber
+          done
