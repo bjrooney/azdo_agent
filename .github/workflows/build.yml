@@ -61,7 +61,7 @@ jobs:
           cat grype-report.txt
 
       - name: Upload vulnerability report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: grype-vulnerability-report
           path: grype-report.txt
