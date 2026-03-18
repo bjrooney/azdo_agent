@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
   build-apko:
@@ -51,6 +52,20 @@ jobs:
 
       - name: Load image
         run: docker load -i azdo-agent-apko.tar
+
+      - name: Scan image for vulnerabilities
+        continue-on-error: true
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+          grype azdo-agent:apko-amd64 --output table > grype-report.txt 2>&1 || true
+          cat grype-report.txt
+
+      - name: Upload vulnerability report
+        uses: actions/upload-artifact@v4
+        with:
+          name: grype-vulnerability-report
+          path: grype-report.txt
+          if-no-files-found: warn
 
       - name: Verify image tools
         run: |
