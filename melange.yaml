@@ -47,7 +47,7 @@ pipeline:
       # Azure CLI is installed as the Wolfi 'az' APK (pinned in runtime deps above).
       AZDO_AGENT_VERSION=4.269.0
       KUBECTL_VERSION=1.35.2
-      KUBELOGIN_VERSION=0.2.16
+      KUBELOGIN_VERSION=0.2.19
       TERRAFORM_VERSION=1.14.7
       VENDIR_VERSION=0.45.2
       KLUCTL_VERSION=2.27.0
