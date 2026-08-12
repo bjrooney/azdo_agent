@@ -9,7 +9,7 @@ package:
     no-depends: true
   dependencies:
     runtime:
-      - az~=2.84.0
+      - az~=2.89.1
       - bash
       - coreutils
       - curl
