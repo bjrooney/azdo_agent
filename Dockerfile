@@ -3,7 +3,7 @@
 # It does NOT verify SHA256 checksums for downloaded binaries and is NOT suitable for production.
 # Use the melange + apko pipeline (build-apko.sh) for production builds.
 
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:2a43204178a08b8c7f5e881c550bb52733364beff904ed36eeabe33cc656c749
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:3754b6da0e1ccdab0fe46abfdd7bbbba994b593c28149f6659fa6597f2261aeb
 
 ARG MELANGE_VERSION=0.45.3-r1
 ARG AZCLI_VERSION=~2.84.0
