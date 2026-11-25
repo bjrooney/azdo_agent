@@ -6,7 +6,7 @@ ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Pinned digests for reproducible local builds.
 # Update these when bumping tool versions (run: docker pull <image> && docker inspect --format '{{index .RepoDigests 0}}').
 MELANGE_IMAGE="cgr.dev/chainguard/melange@sha256:09a0195ba41b483a069d0b21d4442fc87ea24975abcae0377a1ed3d1638cbddd"
-APKO_IMAGE="cgr.dev/chainguard/apko@sha256:48723aaeadd24f01a82c6920c4e2d7e49df259bb36e972c14cf414264d7bf676"
+APKO_IMAGE="cgr.dev/chainguard/apko@sha256:627d5cb31ef831748e2ae3528a0d7760276f823a6efc4f31b3a4cb87223fee73"
 
 cd "$ROOT_DIR"
 
